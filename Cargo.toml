@@ -4,7 +4,10 @@ members = [
     "crates/dsp",
     "crates/engine",
     "crates/audio-io",
+    "crates/config",
+    "crates/ui",
     "apps/monitor",
+    "apps/minimix",
 ]
 
 [workspace.package]
