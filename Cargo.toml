@@ -11,6 +11,7 @@ members = [
     "apps/minimix",
     "apps/daemon",
     "platforms/macos/hal-driver",
+    "platforms/windows/wave-rt-user",
 ]
 
 [workspace.package]

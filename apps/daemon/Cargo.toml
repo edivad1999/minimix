@@ -5,16 +5,23 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Userspace capture/DSP daemon that feeds the macOS HAL plug-in"
+description = "Userspace capture/DSP daemon feeding platform virtual-mic paths"
 publish = false
 
 [[bin]]
 name = "minimix-daemon"
 path = "src/main.rs"
 
+[features]
+default = []
+win-fake-ring = ["minimix-wavert/win-fake-ring"]
+
 [dependencies]
-minimix-audio-io = { path = "../../crates/audio-io" }
 minimix-engine = { path = "../../crates/engine" }
+minimix-wavert = { path = "../../platforms/windows/wave-rt-user" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+minimix-audio-io = { path = "../../crates/audio-io" }
 minimix-ipc-mac = { path = "../../crates/ipc-mac" }
 
 [lints]
