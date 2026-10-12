@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  pack:
+    name: Pack (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            pack: linux
+          - os: macos-latest
+            pack: macos
+          - os: windows-latest
+            pack: windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" == v* ]]; then
+            echo "MINIMIX_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "MINIMIX_VERSION=0.0.0-dev+$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install Linux audio build deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libasound2-dev \
+            libpipewire-0.3-dev \
+            clang \
+            libclang-dev
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Pack (Linux)
+        if: matrix.pack == 'linux'
+        run: bash packaging/linux/pack.sh
+
+      - name: Pack (macOS)
+        if: matrix.pack == 'macos'
+        run: bash packaging/macos/pack.sh
+
+      - name: Pack (Windows)
+        if: matrix.pack == 'windows'
+        shell: pwsh
+        run: ./packaging/windows/pack.ps1
+
+      - name: Upload archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: minimix-${{ env.MINIMIX_VERSION }}-${{ matrix.pack }}
+          path: dist/minimix-*
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/minimix-*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
