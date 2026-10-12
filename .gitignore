@@ -1,0 +1,57 @@
+# Rust
+/target/
+**/target/
+
+# Scratch / local experiments (never publish)
+.scratch/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+credentials.json
+secrets/
+
+# Signing / packaging local artifacts
+*.driver/
+*.sys
+*.cat
+*.cer
+*.pfx
+*.mobileprovision
+notarize-log.json
+
+# Test / coverage
+coverage/
+lcov.info
+*.profraw
+*.profdata
+
+# Editor / agent tooling (never publish)
+.cursor/
+.claude/
+.codex/
+.continue/
+.windsurf/
+.aider*
+.agent/
+.agents/
+AGENTS.md
+CLAUDE.md
+.copilot/
+decisions.tsv
+children.tsv

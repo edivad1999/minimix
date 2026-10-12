@@ -1,0 +1,12 @@
+[package]
+name = "minimix-dsp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Real-time DSP primitives for Minimix (equalizer, compressor, gain)"
+publish = false
+
+[lints]
+workspace = true
