@@ -1,0 +1,17 @@
+[package]
+name = "minimix-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "egui desktop controls for Minimix"
+publish = false
+
+[dependencies]
+eframe = { version = "0.31", default-features = true }
+minimix-config = { path = "../config" }
+minimix-engine = { path = "../engine" }
+
+[lints]
+workspace = true
