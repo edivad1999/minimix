@@ -1,0 +1,21 @@
+[package]
+name = "minimix-daemon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Userspace capture/DSP daemon that feeds the macOS HAL plug-in"
+publish = false
+
+[[bin]]
+name = "minimix-daemon"
+path = "src/main.rs"
+
+[dependencies]
+minimix-audio-io = { path = "../../crates/audio-io" }
+minimix-engine = { path = "../../crates/engine" }
+minimix-ipc-mac = { path = "../../crates/ipc-mac" }
+
+[lints]
+workspace = true

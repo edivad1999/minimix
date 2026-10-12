@@ -17,7 +17,11 @@ No third-party virtual cables (BlackHole, VB-Cable, and similar) are required.
 
 ## Status
 
-Early scaffold. DSP work is in progress. Platform adapters, GUI, and installers are not shipping yet. CI checks formatting, Clippy, and tests on Linux, macOS, and Windows.
+DSP, monitor, GUI, and platform scaffolds are in tree. The macOS HAL virtual
+microphone (thin `AudioServerPlugIn` + mach-fed daemon) builds here; live load
+needs a Developer ID signed install. See [docs/macos-hal.md](docs/macos-hal.md)
+and [docs/install-macos.md](docs/install-macos.md).
+CI checks formatting, Clippy, and tests on Linux, macOS, and Windows.
 
 ## Contributing
 
