@@ -6,18 +6,19 @@
 cargo run -p minimix
 ```
 
-This opens the parameter UI and monitors the default input to the default output. It does not yet install a system-wide virtual microphone.
+This opens the parameter UI and monitors the default input to the default output. It does not install a system-wide virtual microphone by itself.
 
 ## Virtual microphone (HAL plug-in)
 
-A system input device requires an AudioServerPlugIn under `/Library/Audio/Plug-Ins/HAL/`.
+Full steps, signing notes, and the mach service contract live in
+[macos-hal.md](macos-hal.md). Short version:
 
-1. Build the HAL driver crate from `platforms/macos/hal-driver` (see that PR when merged).
-2. Assemble the `.driver` bundle.
-3. Sign with **Developer ID Application** and the hardened runtime. Ad-hoc signatures fail AMFI on modern macOS (`AppleMobileFileIntegrityError -423`).
-4. Copy the bundle to `/Library/Audio/Plug-Ins/HAL/` (root).
-5. Restart Core Audio: `sudo killall -9 coreaudiod`.
-6. Confirm Minimix appears in Sound Settings.
-7. Run the daemon so the plug-in receives processed PCM over the declared mach service.
+1. `cargo build --release -p minimix-hal-driver -p minimix-daemon`
+2. `./platforms/macos/hal-driver/scripts/assemble-driver.sh release`
+3. Sign with **Developer ID Application** (`MINIMIX_CODESIGN_IDENTITY`) and run
+   `./platforms/macos/hal-driver/scripts/sign-and-install.sh release`
+4. Confirm Minimix in Sound Settings / `system_profiler SPAudioDataType`
+5. Run `./target/release/minimix-daemon`
 
-Notarize the installer if the package carries a quarantine flag.
+Ad-hoc signatures (`codesign --sign -`) often fail AMFI on modern macOS with
+`AppleMobileFileIntegrityError -423`. A Discord-visible mic requires Developer ID.

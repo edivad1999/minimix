@@ -6,8 +6,11 @@ members = [
     "crates/audio-io",
     "crates/config",
     "crates/ui",
+    "crates/ipc-mac",
     "apps/monitor",
     "apps/minimix",
+    "apps/daemon",
+    "platforms/macos/hal-driver",
 ]
 
 [workspace.package]
@@ -23,3 +26,7 @@ unsafe_code = "forbid"
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
+
+# Abort on panic so a HAL plug-in panic cannot unwind into coreaudiod.
+[profile.release]
+panic = "abort"

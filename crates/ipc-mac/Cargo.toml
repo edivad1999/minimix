@@ -1,0 +1,22 @@
+[package]
+name = "minimix-ipc-mac"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Mach-service PCM framing for the Minimix macOS HAL plug-in"
+publish = false
+
+[lints.rust]
+unsafe_code = "allow"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+
+[dependencies]
+thiserror = "2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+mach2 = "0.4"

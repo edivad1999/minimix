@@ -76,6 +76,24 @@ impl MonitorSession {
     }
 }
 
+/// Capture-only session. Dropping stops the input stream.
+pub struct CaptureSession {
+    _input: Stream,
+    /// Shared stop flag.
+    pub stop: Arc<AtomicBool>,
+    /// Callback statistics.
+    pub stats: Arc<CallbackStats>,
+    /// Negotiated sample rate in Hz.
+    pub sample_rate: u32,
+}
+
+impl CaptureSession {
+    /// Signal the input stream to stop. Dropping also ends it.
+    pub fn request_stop(&self) {
+        self.stop.store(true, Ordering::Release);
+    }
+}
+
 /// Open default input and output, process through `on_block`.
 ///
 /// `on_block` runs on the capture callback with mono f32 frames.
@@ -204,6 +222,77 @@ where
         _output: output_stream,
         stop,
         stats,
+    })
+}
+
+/// Open the default input device and deliver mono f32 frames to `on_block`.
+///
+/// # Errors
+///
+/// Returns [`AudioError`] when no input device is available or the stream fails.
+pub fn start_capture<F>(mut on_block: F) -> Result<CaptureSession, AudioError>
+where
+    F: FnMut(&mut [f32]) + Send + 'static,
+{
+    let host = cpal::default_host();
+    let input = host
+        .default_input_device()
+        .ok_or_else(|| AudioError::Host("no default input".into()))?;
+    let in_name = input.name().unwrap_or_else(|_| "<in>".into());
+    let in_config = pick_f32_config(&input, true)?;
+    eprintln!(
+        "capture_started input={in_name} hz={} ch={}",
+        in_config.sample_rate.0, in_config.channels
+    );
+
+    let stop = Arc::new(AtomicBool::new(false));
+    let stats = Arc::new(CallbackStats::default());
+    let stats_in = Arc::clone(&stats);
+    let stop_in = Arc::clone(&stop);
+    let in_channels = in_config.channels as usize;
+    let sample_rate = in_config.sample_rate.0;
+    let mut mono_scratch = [0.0_f32; MAX_FRAMES];
+
+    let input_stream = input
+        .build_input_stream(
+            &in_config,
+            move |data: &[f32], _| {
+                if stop_in.load(Ordering::Acquire) {
+                    return;
+                }
+                let t0 = std::time::Instant::now();
+                let frames = (data.len() / in_channels.max(1)).min(MAX_FRAMES);
+                let mono = &mut mono_scratch[..frames];
+                for (i, sample) in mono.iter_mut().enumerate() {
+                    let mut sum = 0.0_f32;
+                    for ch in 0..in_channels {
+                        sum += data[i * in_channels + ch];
+                    }
+                    #[allow(clippy::cast_precision_loss)]
+                    {
+                        *sample = sum / in_channels as f32;
+                    }
+                }
+                on_block(mono);
+                let ns = u64::try_from(t0.elapsed().as_nanos()).unwrap_or(u64::MAX);
+                stats_in.callbacks.fetch_add(1, Ordering::Relaxed);
+                stats_in.frames.fetch_add(frames as u64, Ordering::Relaxed);
+                let _ = stats_in.max_callback_ns.fetch_max(ns, Ordering::Relaxed);
+            },
+            |err| eprintln!("input stream error: {err}"),
+            None,
+        )
+        .map_err(|e| AudioError::Stream(e.to_string()))?;
+
+    input_stream
+        .play()
+        .map_err(|e| AudioError::Stream(e.to_string()))?;
+
+    Ok(CaptureSession {
+        _input: input_stream,
+        stop,
+        stats,
+        sample_rate,
     })
 }
 
