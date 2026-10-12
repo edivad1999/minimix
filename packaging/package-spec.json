@@ -12,18 +12,20 @@
     "macos-aarch64": {
       "os": "macos",
       "arch": "aarch64",
-      "archive": "tar.gz",
+      "archive": "dmg",
+      "also": ["tar.gz"],
       "signing": "developer-id-pending",
-      "components": ["daemon", "gui", "hal-driver", "notes"],
-      "notes": "Unsigned archive. Live Discord / Sound Settings needs Developer ID. Ad-hoc codesign hits AMFI -423."
+      "components": ["daemon", "gui", "hal-driver", "notes", "installer-app"],
+      "notes": "Prefer the .dmg: double-click Install Minimix. tar.gz keeps ./install.sh for scripting. Unsigned. Live Discord / Sound Settings needs Developer ID. Ad-hoc codesign hits AMFI -423."
     },
     "macos-x86_64": {
       "os": "macos",
       "arch": "x86_64",
-      "archive": "tar.gz",
+      "archive": "dmg",
+      "also": ["tar.gz"],
       "signing": "developer-id-pending",
-      "components": ["daemon", "gui", "hal-driver", "notes"],
-      "notes": "Unsigned archive. Live Discord / Sound Settings needs Developer ID. Ad-hoc codesign hits AMFI -423."
+      "components": ["daemon", "gui", "hal-driver", "notes", "installer-app"],
+      "notes": "Prefer the .dmg: double-click Install Minimix. tar.gz keeps ./install.sh for scripting. Unsigned. Live Discord / Sound Settings needs Developer ID. Ad-hoc codesign hits AMFI -423."
     },
     "windows-x86_64": {
       "os": "windows",

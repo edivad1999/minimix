@@ -18,8 +18,10 @@ No third-party virtual cables (BlackHole, VB-Cable, and similar) are required.
 ## Install
 
 Download a platform archive from
-[GitHub Releases](https://github.com/edivad1999/minimix/releases), unpack it,
-and run the embedded install script (`install.sh` or `install.ps1`).
+[GitHub Releases](https://github.com/edivad1999/minimix/releases).
+
+On macOS, open the `.dmg` and double-click **Install Minimix**. On Linux and
+Windows, unpack the archive and run `install.sh` or `install.ps1`.
 
 | Platform | Guide |
 | -------- | ----- |
