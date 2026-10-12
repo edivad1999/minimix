@@ -113,6 +113,13 @@ impl SampleRing {
 mod tests {
     use super::*;
 
+    fn assert_f32_slice_eq(got: &[f32], want: &[f32]) {
+        assert_eq!(got.len(), want.len());
+        for (g, w) in got.iter().zip(want) {
+            assert_eq!(g.to_bits(), w.to_bits());
+        }
+    }
+
     #[test]
     fn push_pop_round_trips_literal_samples() {
         let ring = SampleRing::with_capacity(8);
@@ -120,7 +127,7 @@ mod tests {
         assert_eq!(ring.push_slice(&src), 4);
         let mut dst = [0.0_f32; 4];
         assert_eq!(ring.pop_slice(&mut dst), 4);
-        assert_eq!(dst, src);
+        assert_f32_slice_eq(&dst, &src);
     }
 
     #[test]
@@ -130,7 +137,7 @@ mod tests {
         assert_eq!(ring.push_slice(&[5.0]), 0);
         let mut dst = [0.0_f32; 4];
         assert_eq!(ring.pop_slice(&mut dst), 3);
-        assert_eq!(&dst[..3], &[1.0, 2.0, 3.0]);
+        assert_f32_slice_eq(&dst[..3], &[1.0, 2.0, 3.0]);
     }
 
     #[test]
@@ -138,7 +145,7 @@ mod tests {
         let ring = SampleRing::with_capacity(8);
         let mut dst = [9.0_f32; 2];
         assert_eq!(ring.pop_slice(&mut dst), 0);
-        assert_eq!(dst, [9.0, 9.0]);
+        assert_f32_slice_eq(&dst, &[9.0, 9.0]);
     }
 
     #[test]
@@ -147,10 +154,10 @@ mod tests {
         assert_eq!(ring.push_slice(&[1.0, 2.0]), 2);
         let mut skip = [0.0_f32; 2];
         assert_eq!(ring.pop_slice(&mut skip), 2);
-        assert_eq!(skip, [1.0, 2.0]);
+        assert_f32_slice_eq(&skip, &[1.0, 2.0]);
         assert_eq!(ring.push_slice(&[3.0, 4.0, 5.0]), 3);
         let mut dst = [0.0_f32; 3];
         assert_eq!(ring.pop_slice(&mut dst), 3);
-        assert_eq!(dst, [3.0, 4.0, 5.0]);
+        assert_f32_slice_eq(&dst, &[3.0, 4.0, 5.0]);
     }
 }
