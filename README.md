@@ -15,6 +15,21 @@ Minimix captures from a real input device, applies real-time effects (EQ, compre
 
 No third-party virtual cables (BlackHole, VB-Cable, and similar) are required.
 
+## Install
+
+Download a platform archive from
+[GitHub Releases](https://github.com/edivad1999/minimix/releases), unpack it,
+and run the embedded install script (`install.sh` or `install.ps1`).
+
+| Platform | Guide |
+| -------- | ----- |
+| Linux | [docs/install-linux.md](docs/install-linux.md) |
+| macOS | [docs/install-macos.md](docs/install-macos.md) |
+| Windows | [docs/install-windows.md](docs/install-windows.md) |
+
+Packaging layout and the PackageSpec registry are documented in
+[packaging/README.md](packaging/README.md).
+
 ## Status
 
 DSP, monitor, GUI, and platform scaffolds are in tree. The macOS HAL virtual

@@ -1,0 +1,37 @@
+{
+  "artifact_pattern": "minimix-{version}-{platform}.{ext}",
+  "platforms": {
+    "linux-x86_64": {
+      "os": "linux",
+      "arch": "x86_64",
+      "archive": "tar.gz",
+      "signing": "unsigned",
+      "components": ["daemon", "gui", "notes"],
+      "notes": "Userspace PipeWire path. Install PipeWire 1.0.2+, WirePlumber, and pipewire-pulse. No third-party virtual-cable installer."
+    },
+    "macos-aarch64": {
+      "os": "macos",
+      "arch": "aarch64",
+      "archive": "tar.gz",
+      "signing": "developer-id-pending",
+      "components": ["daemon", "gui", "hal-driver", "notes"],
+      "notes": "Unsigned archive. Live Discord / Sound Settings needs Developer ID. Ad-hoc codesign hits AMFI -423."
+    },
+    "macos-x86_64": {
+      "os": "macos",
+      "arch": "x86_64",
+      "archive": "tar.gz",
+      "signing": "developer-id-pending",
+      "components": ["daemon", "gui", "hal-driver", "notes"],
+      "notes": "Unsigned archive. Live Discord / Sound Settings needs Developer ID. Ad-hoc codesign hits AMFI -423."
+    },
+    "windows-x86_64": {
+      "os": "windows",
+      "arch": "x86_64",
+      "archive": "zip",
+      "signing": "ev-pending",
+      "components": ["daemon", "gui", "notes"],
+      "notes": "Userspace bins only. WaveRT kernel install stays test-sign / EV-blocked. No production .sys installer."
+    }
+  }
+}

@@ -1,24 +1,50 @@
 # Install on macOS
 
-## App (monitor + UI)
+## From a GitHub Release (preferred)
+
+1. Download the matching archive from
+   [Releases](https://github.com/edivad1999/minimix/releases):
+   `minimix-*-macos-aarch64.tar.gz` (Apple silicon) or
+   `minimix-*-macos-x86_64.tar.gz` (Intel).
+2. Unpack and run the install script (sudo for the HAL plug-in):
 
 ```bash
-cargo run -p minimix
+tar -xzf minimix-*-macos-aarch64.tar.gz
+cd minimix-*-macos-aarch64
+./install.sh
 ```
 
-This opens the parameter UI and monitors the default input to the default output. It does not install a system-wide virtual microphone by itself.
+This copies `Minimix.driver` to `/Library/Audio/Plug-Ins/HAL`, restarts
+`coreaudiod`, and installs `minimix-daemon` / `minimix` under `/usr/local/bin`.
 
-## Virtual microphone (HAL plug-in)
+3. Start the daemon, then open the GUI if you want the parameter UI:
 
-Full steps, signing notes, and the mach service contract live in
-[macos-hal.md](macos-hal.md). Short version:
+```bash
+minimix-daemon
+minimix
+```
 
-1. `cargo build --release -p minimix-hal-driver -p minimix-daemon`
-2. `./platforms/macos/hal-driver/scripts/assemble-driver.sh release`
-3. Sign with **Developer ID Application** (`MINIMIX_CODESIGN_IDENTITY`) and run
-   `./platforms/macos/hal-driver/scripts/sign-and-install.sh release`
-4. Confirm Minimix in Sound Settings / `system_profiler SPAudioDataType`
-5. Run `./target/release/minimix-daemon`
+### Signing limit
 
-Ad-hoc signatures (`codesign --sign -`) often fail AMFI on modern macOS with
-`AppleMobileFileIntegrityError -423`. A Discord-visible mic requires Developer ID.
+Release archives are **unsigned**. Live Discord / Sound Settings input needs a
+**Developer ID Application** signed plug-in. Ad-hoc signatures often fail AMFI
+on modern macOS with `AppleMobileFileIntegrityError -423`. Full signing and
+mach-service notes live in [macos-hal.md](macos-hal.md).
+
+## Build from source (advanced)
+
+```bash
+cargo build --release -p minimix-hal-driver -p minimix-daemon -p minimix
+./platforms/macos/hal-driver/scripts/assemble-driver.sh release
+./packaging/macos/pack.sh   # optional local archive under dist/
+```
+
+To sign and install with Developer ID:
+
+```bash
+export MINIMIX_CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
+./platforms/macos/hal-driver/scripts/sign-and-install.sh release
+./target/release/minimix-daemon
+```
+
+Confirm Minimix in Sound Settings or `system_profiler SPAudioDataType`.
