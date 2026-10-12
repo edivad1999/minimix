@@ -1,0 +1,20 @@
+[package]
+name = "minimix-monitor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Live microphone capture with DSP monitoring to headphones"
+publish = false
+
+[[bin]]
+name = "monitor"
+path = "src/main.rs"
+
+[dependencies]
+minimix-audio-io = { path = "../../crates/audio-io" }
+minimix-engine = { path = "../../crates/engine" }
+
+[lints]
+workspace = true
