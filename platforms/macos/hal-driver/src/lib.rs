@@ -208,10 +208,10 @@ mod tests {
 
     #[test]
     fn committed_info_plist_matches_generator() {
-        assert_eq!(
-            tympan_aspl::bundle::plist::generate(&MinimixDriver::bundle_config()),
-            include_str!("../Info.plist"),
-        );
+        let generated = tympan_aspl::bundle::plist::generate(&MinimixDriver::bundle_config())
+            .replace("\r\n", "\n");
+        let committed = include_str!("../Info.plist").replace("\r\n", "\n");
+        assert_eq!(generated, committed);
     }
 
     #[test]
