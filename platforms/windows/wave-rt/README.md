@@ -8,7 +8,13 @@ This tree will hold a **capture-only** PortCls WaveRT virtual microphone derived
 - One capture bridge pin published as a microphone by AudioEndpointBuilder
 - Driver timer owns `GetPosition` and never waits on user mode
 - Passive-level private IOCTL fills a staging ring; underrun plays silence
-- All DSP stays in the Rust daemon (see `minimix-06`)
+- All DSP stays in the Rust daemon (see `apps/daemon` and `minimix-06`)
+
+## Userspace protocol
+
+IOCTL codes, ring header layout, and commit/underrun rules live in the Rust crate
+`platforms/windows/wave-rt-user` (`minimix-wavert`). Until a `.sys` exists, CI uses the
+`win-fake-ring` feature for an in-process staging ring with the same semantics.
 
 ## License
 
@@ -24,4 +30,4 @@ Not runnable from macOS/Linux CI. On a Windows machine with the WDK:
 
 ## Status
 
-Scaffold only. No `.sys` is built in this PR. The INF and C++ miniport land next once the MS-PL tree is copied with notices.
+Scaffold only. No `.sys` is built in this PR. EV signing and Hardware Dev Center attestation remain blockers for loading on stock Secure Boot systems. See [STATUS.md](STATUS.md).

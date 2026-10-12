@@ -1,0 +1,24 @@
+[package]
+name = "minimix-wavert"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "WaveRT staging-ring protocol and userspace feed for Minimix"
+publish = false
+
+[features]
+default = []
+# In-process staging ring for CI and local runs without a loaded .sys.
+win-fake-ring = []
+
+[dependencies]
+minimix-engine = { path = "../../../crates/engine" }
+thiserror = "2"
+
+[target.'cfg(windows)'.dependencies]
+minimix-audio-io = { path = "../../../crates/audio-io" }
+
+[lints]
+workspace = true

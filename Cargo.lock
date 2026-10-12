@@ -1962,6 +1962,7 @@ dependencies = [
  "minimix-audio-io",
  "minimix-engine",
  "minimix-ipc-mac",
+ "minimix-wavert",
 ]
 
 [[package]]
@@ -2009,6 +2010,15 @@ dependencies = [
  "eframe",
  "minimix-config",
  "minimix-engine",
+]
+
+[[package]]
+name = "minimix-wavert"
+version = "0.1.0"
+dependencies = [
+ "minimix-audio-io",
+ "minimix-engine",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
