@@ -1,4 +1,4 @@
-//! Capture → DSP → platform virtual-mic feed (mach on macOS, PipeWire on Linux, WaveRT on Windows).
+//! Capture → DSP → platform virtual-mic feed (mach on macOS, `PipeWire` on Linux, `WaveRT` on Windows).
 
 fn main() {
     #[cfg(target_os = "macos")]
