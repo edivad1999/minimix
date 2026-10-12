@@ -198,11 +198,11 @@ fn run_session(
                 return;
             }
             let data = &mut datas[0];
+            let channels = capture_ch.load(Ordering::Acquire).max(1) as usize;
+            let n_samples = data.chunk().size() as usize / std::mem::size_of::<f32>();
             let Some(samples) = data.data() else {
                 return;
             };
-            let channels = capture_ch.load(Ordering::Acquire).max(1) as usize;
-            let n_samples = data.chunk().size() as usize / std::mem::size_of::<f32>();
             let frames = n_samples / channels;
             if frames == 0 {
                 return;
@@ -279,25 +279,28 @@ fn run_session(
                 return;
             }
             let data = &mut datas[0];
-            let Some(samples) = data.data() else {
-                return;
-            };
             let stride = std::mem::size_of::<f32>();
-            let max_frames = samples.len() / stride;
             let mut mono = [0.0_f32; 2048];
-            let frames = max_frames.min(mono.len());
-            let got = source_ring_cb.pop_slice(&mut mono[..frames]);
-            if got < frames {
-                source_stats
-                    .source_underruns
-                    .fetch_add(1, Ordering::Relaxed);
-                mono[got..frames].fill(0.0);
-            }
-            for (i, sample) in mono[..frames].iter().enumerate() {
-                let start = i * stride;
-                let end = start + stride;
-                samples[start..end].copy_from_slice(&sample.to_le_bytes());
-            }
+            let frames = {
+                let Some(samples) = data.data() else {
+                    return;
+                };
+                let max_frames = samples.len() / stride;
+                let frames = max_frames.min(mono.len());
+                let got = source_ring_cb.pop_slice(&mut mono[..frames]);
+                if got < frames {
+                    source_stats
+                        .source_underruns
+                        .fetch_add(1, Ordering::Relaxed);
+                    mono[got..frames].fill(0.0);
+                }
+                for (i, sample) in mono[..frames].iter().enumerate() {
+                    let start = i * stride;
+                    let end = start + stride;
+                    samples[start..end].copy_from_slice(&sample.to_le_bytes());
+                }
+                frames
+            };
             let chunk = data.chunk_mut();
             *chunk.offset_mut() = 0;
             *chunk.stride_mut() = stride as i32;
