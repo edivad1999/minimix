@@ -140,6 +140,7 @@ fn mach_recv_loop(producer: SampleProducer, stop: Arc<AtomicBool>) {
 }
 
 #[cfg(not(target_os = "macos"))]
+#[allow(clippy::needless_pass_by_value)] // matches macOS signature; Arc moved onto the receive thread
 fn mach_recv_loop(producer: SampleProducer, stop: Arc<AtomicBool>) {
     let _ = (producer, SERVICE_NAME);
     while !stop.load(Ordering::Acquire) {
