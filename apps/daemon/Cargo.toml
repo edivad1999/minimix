@@ -19,6 +19,7 @@ win-fake-ring = ["minimix-wavert/win-fake-ring"]
 [dependencies]
 minimix-engine = { path = "../../crates/engine" }
 minimix-wavert = { path = "../../platforms/windows/wave-rt-user" }
+minimix-pipewire = { path = "../../platforms/linux/pipewire" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 minimix-audio-io = { path = "../../crates/audio-io" }
