@@ -157,12 +157,12 @@ fn run_session(
         *pw::keys::MEDIA_CATEGORY => "Capture",
         *pw::keys::MEDIA_ROLE => "Music",
         *pw::keys::MEDIA_CLASS => "Stream/Input/Audio",
-        *pw::keys::NODE_WANT_DRIVER => "true",
+        "node.want-driver" => "true",
     };
-    capture_props.insert(*pw::keys::NODE_LINK_GROUP, config.link_group.as_str());
+    capture_props.insert("node.link-group", config.link_group.as_str());
     capture_props.insert(*pw::keys::NODE_DESCRIPTION, "Minimix Capture");
     if let Some(target) = &config.capture_target {
-        capture_props.insert(*pw::keys::TARGET_OBJECT, target.as_str());
+        capture_props.insert("target.object", target.as_str());
     }
 
     let capture = pw::stream::StreamBox::new(&core, "minimix-capture", capture_props)
@@ -252,7 +252,7 @@ fn run_session(
         *pw::keys::PRIORITY_SESSION,
         config.priority_session.to_string(),
     );
-    source_props.insert(*pw::keys::NODE_LINK_GROUP, config.link_group.as_str());
+    source_props.insert("node.link-group", config.link_group.as_str());
     source_props.insert("audio.position", "[MONO]");
 
     let source = pw::stream::StreamBox::new(&core, config.media_name.as_str(), source_props)
