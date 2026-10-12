@@ -75,13 +75,18 @@ write_notes() {
   } >"$dest"
 }
 
-make_archive() {
-  local platform="$1"
+artifact_name_ext() {
+  local version="$1"
+  local platform="$2"
+  local ext="$3"
+  printf 'minimix-%s-%s.%s\n' "$version" "$platform" "$ext"
+}
+
+make_archive_as() {
+  local archive="$1"
   local stage_parent="$2"
   local stage_name="$3"
   local out_path="$4"
-  local archive
-  archive="$(spec_field "$platform" archive)"
   mkdir -p "$(dirname "$out_path")"
   rm -f "$out_path"
   case "$archive" in
@@ -91,10 +96,22 @@ make_archive() {
     zip)
       (cd "$stage_parent" && zip -qr "$out_path" "$stage_name")
       ;;
+    dmg)
+      echo "use packaging/macos/pack.sh to build .dmg (hdiutil)" >&2
+      return 1
+      ;;
     *)
       echo "unknown archive type: $archive" >&2
       return 1
       ;;
   esac
   printf '%s\n' "$out_path"
+}
+
+make_archive() {
+  local platform="$1"
+  local stage_parent="$2"
+  local stage_name="$3"
+  local out_path="$4"
+  make_archive_as "$(spec_field "$platform" archive)" "$stage_parent" "$stage_name" "$out_path"
 }

@@ -21,7 +21,8 @@ VERSION="$(minimix_version)"
 STAGE="$(stage_dir_for "$VERSION" "$PLATFORM")"
 STAGE_NAME="$(basename "$STAGE")"
 STAGE_PARENT="$(dirname "$STAGE")"
-OUT="$ROOT/dist/$(artifact_name "$VERSION" "$PLATFORM")"
+OUT_TGZ="$ROOT/dist/$(artifact_name_ext "$VERSION" "$PLATFORM" tar.gz)"
+OUT_DMG="$ROOT/dist/$(artifact_name_ext "$VERSION" "$PLATFORM" dmg)"
 
 cargo build --release -p minimix-daemon -p minimix -p minimix-hal-driver
 "$ROOT/platforms/macos/hal-driver/scripts/assemble-driver.sh" release
@@ -41,5 +42,31 @@ cp "$SCRIPT_DIR/install.sh" "$STAGE/install.sh"
 chmod +x "$STAGE/minimix-daemon" "$STAGE/minimix" "$STAGE/install.sh"
 write_notes "$PLATFORM" "$STAGE/NOTES.txt"
 
-make_archive "$PLATFORM" "$STAGE_PARENT" "$STAGE_NAME" "$OUT"
-echo "packed $OUT"
+make_archive_as tar.gz "$STAGE_PARENT" "$STAGE_NAME" "$OUT_TGZ"
+echo "packed $OUT_TGZ"
+
+DMG_ROOT="$ROOT/dist/dmg-root/$PLATFORM"
+rm -rf "$DMG_ROOT"
+mkdir -p "$DMG_ROOT"
+"$SCRIPT_DIR/build-installer-app.sh" "$STAGE" "$DMG_ROOT/Install Minimix.app"
+cp "$STAGE/NOTES.txt" "$DMG_ROOT/NOTES.txt"
+cat >"$DMG_ROOT/README.txt" <<'EOF'
+Minimix for macOS
+
+1. Double-click "Install Minimix".
+2. Enter your Mac password when prompted.
+3. If macOS blocks the app (unsigned): right-click Install Minimix → Open → Open.
+4. In Terminal run: minimix-daemon
+
+Live Discord / Sound Settings usually needs Developer ID signing.
+See NOTES.txt.
+EOF
+
+rm -f "$OUT_DMG"
+hdiutil create \
+  -volname "Minimix" \
+  -srcfolder "$DMG_ROOT" \
+  -ov \
+  -format UDZO \
+  "$OUT_DMG"
+echo "packed $OUT_DMG"

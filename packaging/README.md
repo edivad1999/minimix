@@ -12,7 +12,8 @@ fork platform rules into scattered conditionals.
 | `platform` | `linux-x86_64`, `macos-aarch64`, `macos-x86_64`, `windows-x86_64` |
 | `components` | `daemon`, `gui`, optional `hal-driver`, plus `notes` |
 | `signing` | `unsigned`, `developer-id-pending`, `ev-pending`, or `test-sign-pending` |
-| `artifact_name` | `minimix-{version}-{platform}.tar.gz` or `.zip` |
+| `artifact_name` | `minimix-{version}-{platform}.dmg`, `.tar.gz`, or `.zip` |
+| `also` | Optional extra formats (macOS ships `.dmg` plus `.tar.gz`) |
 
 ## Build locally
 
@@ -31,11 +32,12 @@ Archives land under `dist/`.
 
 ## Install from a release archive
 
-Download the matching asset from GitHub Releases, unpack, and run the
-embedded install script (`install.sh` or `install.ps1`).
+- **macOS:** open the `.dmg`, double-click **Install Minimix** (password prompt).
+  The `.tar.gz` still embeds `./install.sh` for scripting.
+- **Linux / Windows:** unpack and run `install.sh` or `install.ps1`.
 
 ## Follow-ups (out of this tree)
 
-- Developer ID signing + notarization for macOS HAL
+- Developer ID signing + notarization for macOS HAL (and signed `.pkg`)
 - Homebrew tap
 - EV / attestation WaveRT installer (WiX/MSI) once a `.sys` exists

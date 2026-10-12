@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+APP_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+RES="$APP_DIR/Contents/Resources"
+INSTALL_SH="$RES/install.sh"
+LOG="$(mktemp -t minimix-install.XXXXXX)"
+
+fail_dialog() {
+  local msg="$1"
+  osascript -e "display alert \"Minimix install failed\" message \"$msg\" as critical" >/dev/null || true
+  exit 1
+}
+
+if [[ ! -f "$INSTALL_SH" ]]; then
+  fail_dialog "Missing install.sh inside Install Minimix.app. Re-download the DMG."
+fi
+
+# Quote paths for AppleScript string literals.
+escape_as() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+INSTALL_Q="$(escape_as "$INSTALL_SH")"
+LOG_Q="$(escape_as "$LOG")"
+
+if ! osascript <<EOF
+do shell script "bash \"$INSTALL_Q\" >\"$LOG_Q\" 2>&1" with administrator privileges
+EOF
+then
+  detail="macOS rejected the admin prompt, or install.sh failed."
+  if [[ -s "$LOG" ]]; then
+    detail="$(tail -n 20 "$LOG" | tr '\n' ' ')"
+  fi
+  fail_dialog "$detail"
+fi
+
+osascript <<'EOF' >/dev/null
+display dialog "Minimix is installed.
+
+Open Terminal and run:
+  minimix-daemon
+
+Then optionally:
+  minimix
+
+Unsigned builds often fail AMFI (-423) for Discord / Sound Settings until Developer ID signing is available." buttons {"OK"} default button 1 with title "Minimix"
+EOF
+
+rm -f "$LOG"
