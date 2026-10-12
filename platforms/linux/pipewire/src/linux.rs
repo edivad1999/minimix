@@ -16,7 +16,7 @@ use std::time::{Duration, Instant};
 
 const RING_CAPACITY: usize = 16_384;
 const DSP_BLOCK: usize = 256;
-/// SPA_AUDIO_CHANNEL_MONO
+/// `SPA_AUDIO_CHANNEL_MONO`
 const CHANNEL_MONO: u32 = 1;
 
 type ReadyTx = std::sync::mpsc::Sender<Result<pw::channel::Sender<()>, PipewireError>>;
@@ -97,6 +97,7 @@ fn fail_ready(ready_tx: &ReadyTx, err: PipewireError) -> PipewireError {
 }
 
 #[allow(clippy::too_many_lines)]
+#[allow(clippy::needless_pass_by_value)] // config + Arcs moved onto the PipeWire thread
 fn run_session(
     config: VirtualMicConfig,
     engine: Arc<Mutex<Engine>>,
@@ -145,7 +146,7 @@ fn run_session(
         let mainloop = mainloop.clone();
         let stop_dsp = Arc::clone(&stop_dsp);
         let wake = Arc::clone(&wake);
-        move |_| {
+        move |()| {
             stop_dsp.store(true, Ordering::Release);
             wake.1.notify_one();
             mainloop.quit();
@@ -209,7 +210,7 @@ fn run_session(
             }
             let mut mono = [0.0_f32; 2048];
             let frames = frames.min(mono.len());
-            for i in 0..frames {
+            for (i, out) in mono[..frames].iter_mut().enumerate() {
                 let mut sum = 0.0_f32;
                 for ch in 0..channels {
                     let idx = (i * channels + ch) * std::mem::size_of::<f32>();
@@ -223,7 +224,7 @@ fn run_session(
                 }
                 #[allow(clippy::cast_precision_loss)]
                 {
-                    mono[i] = sum / channels as f32;
+                    *out = sum / channels as f32;
                 }
             }
             let wrote = capture_ring_cb.push_slice(&mono[..frames]);
@@ -303,8 +304,8 @@ fn run_session(
             };
             let chunk = data.chunk_mut();
             *chunk.offset_mut() = 0;
-            *chunk.stride_mut() = stride as i32;
-            *chunk.size_mut() = (frames * stride) as u32;
+            *chunk.stride_mut() = i32::try_from(stride).unwrap_or(i32::MAX);
+            *chunk.size_mut() = u32::try_from(frames * stride).unwrap_or(u32::MAX);
         })
         .register()
         .map_err(|e| fail_ready(&ready_tx, PipewireError::Pipewire(e.to_string())))?;
@@ -385,6 +386,7 @@ fn make_audio_params(rate: u32, channels: u32) -> Result<Vec<u8>, PipewireError>
     Ok(values)
 }
 
+#[allow(clippy::needless_pass_by_value)] // Arcs moved onto the DSP thread
 fn dsp_loop(
     stop: Arc<AtomicBool>,
     capture_ring: Arc<SampleRing>,
