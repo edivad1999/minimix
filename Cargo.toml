@@ -12,6 +12,7 @@ members = [
     "apps/daemon",
     "platforms/macos/hal-driver",
     "platforms/windows/wave-rt-user",
+    "platforms/linux/pipewire",
 ]
 
 [workspace.package]
