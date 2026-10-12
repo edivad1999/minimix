@@ -10,3 +10,15 @@ publish = false
 
 [lints]
 workspace = true
+
+[[test]]
+name = "offline"
+path = "../../tests/dsp/offline.rs"
+
+[[bench]]
+name = "process"
+path = "benches/process.rs"
+harness = false
+
+[dev-dependencies]
+assert_no_alloc = "1.1"
