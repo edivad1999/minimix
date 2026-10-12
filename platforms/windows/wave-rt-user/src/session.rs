@@ -23,7 +23,7 @@ pub struct FeedSession {
     /// Callback statistics.
     pub stats: Arc<FeedStats>,
     #[cfg(windows)]
-    _capture: minimix_audio_io::CaptureSession,
+    capture: minimix_audio_io::CaptureSession,
     #[cfg(not(windows))]
     _marker: std::marker::PhantomData<()>,
 }
@@ -33,7 +33,7 @@ impl FeedSession {
     pub fn request_stop(&self) {
         self.stop.store(true, Ordering::Release);
         #[cfg(windows)]
-        self._capture.request_stop();
+        self.capture.request_stop();
     }
 }
 
@@ -55,18 +55,16 @@ pub fn start_feed(
     let stats = Arc::new(FeedStats::default());
     let stats_cb = Arc::clone(&stats);
     let stop_cb = Arc::clone(&stop);
-    let engine_cb = Arc::clone(&engine);
-    let feed_cb = Arc::clone(&feed);
 
     let capture = start_capture(move |buf| {
         if stop_cb.load(Ordering::Acquire) {
             return;
         }
         let t0 = std::time::Instant::now();
-        if let Ok(mut eng) = engine_cb.lock() {
+        if let Ok(mut eng) = engine.lock() {
             eng.process(buf);
         }
-        let _ = feed_cb.commit(buf);
+        let _ = feed.commit(buf);
         let ns = u64::try_from(t0.elapsed().as_nanos()).unwrap_or(u64::MAX);
         stats_cb.callbacks.fetch_add(1, Ordering::Relaxed);
         stats_cb
@@ -79,7 +77,7 @@ pub fn start_feed(
     Ok(FeedSession {
         stop,
         stats,
-        _capture: capture,
+        capture,
     })
 }
 
