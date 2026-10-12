@@ -27,6 +27,7 @@ credentials.json
 secrets/
 
 # Signing / packaging local artifacts
+/dist/
 *.driver/
 *.sys
 *.cat
