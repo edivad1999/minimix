@@ -2,6 +2,8 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
@@ -78,11 +80,45 @@ jobs:
           path: dist/minimix-*
           if-no-files-found: error
 
-      - name: Attach to GitHub Release
-        if: github.ref_type == 'tag'
+  publish:
+    name: Publish GitHub Release
+    needs: pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download pack artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: minimix-*
+          path: dist
+          merge-multiple: true
+
+      - name: List assets
+        run: ls -la dist
+
+      - name: Publish tagged release
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/minimix-*
+          files: dist/*
           generate_release_notes: true
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish continuous prerelease
+        if: github.ref_type != 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: continuous
+          name: Continuous build
+          prerelease: true
+          make_latest: false
+          body: |
+            Latest pack from `${{ github.sha }}` on `${{ github.ref_name }}`.
+
+            Unsigned archives. macOS Discord / Sound Settings still needs Developer ID.
+            Prefer a `v*` tag for a numbered release.
+          files: dist/*
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -19,6 +19,8 @@ No third-party virtual cables (BlackHole, VB-Cable, and similar) are required.
 
 Download a platform archive from
 [GitHub Releases](https://github.com/edivad1999/minimix/releases).
+Every push to `main` refreshes the **Continuous build** prerelease. Tag `v*`
+for a numbered release.
 
 On macOS, open the `.dmg` and double-click **Install Minimix**. On Linux and
 Windows, unpack the archive and run `install.sh` or `install.ps1`.

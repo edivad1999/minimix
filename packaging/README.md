@@ -30,6 +30,16 @@ fork platform rules into scattered conditionals.
 
 Archives land under `dist/`.
 
+## GitHub Releases
+
+The **Release** workflow packs on every push to `main`, on `v*` tags, and on
+manual `workflow_dispatch`.
+
+| Trigger | GitHub Release |
+| ------- | -------------- |
+| Push to `main` or `workflow_dispatch` | Updates the **Continuous build** prerelease (`continuous` tag) |
+| Tag `v1.2.3` | Creates a numbered release with those assets |
+
 ## Install from a release archive
 
 - **macOS:** open the `.dmg`, double-click **Install Minimix** (password prompt).
