@@ -1,0 +1,16 @@
+[package]
+name = "minimix-audio-io"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "cpal capture and playback helpers for Minimix"
+publish = false
+
+[dependencies]
+cpal = "0.15"
+thiserror = "2"
+
+[lints]
+workspace = true

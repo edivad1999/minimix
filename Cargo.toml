@@ -2,6 +2,9 @@
 resolver = "2"
 members = [
     "crates/dsp",
+    "crates/engine",
+    "crates/audio-io",
+    "apps/monitor",
 ]
 
 [workspace.package]
